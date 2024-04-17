@@ -1,5 +1,5 @@
-#ifndef GMSiteWidget_H
-#define GMSiteWidget_H
+﻿#ifndef SYSTEM_PERFORMANCE_WIDGET_H
+#define SYSTEM_PERFORMANCE_WIDGET_H
 /* *****************************************************************************
 Copyright (c) 2016-2021, The Regents of the University of California (Regents).
 All rights reserved.
@@ -36,40 +36,27 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written by: Stevan Gavrilovic
+// Written by: Frank McKenna
 
-#include "Site.h"
+#include "MultiComponentR2D.h"
 
-#include <QWidget>
+class SimCenterAppSelection;
 
-class Vs30; // vs30 info
-class Vs30Widget; // vs30 setup widget
-class zDepthWidget;
-class SiteConfig;
-class SiteConfigWidget;
-class QGISVisualizationWidget;
-
-class GMSiteWidget : public QWidget
+class SystemPerformanceWidget : public  MultiComponentR2D
 {
     Q_OBJECT
+
 public:
-    explicit GMSiteWidget(QGISVisualizationWidget* visWidget, QWidget *parent = nullptr);
+    explicit SystemPerformanceWidget(QWidget *parent = 0);
+    ~SystemPerformanceWidget();
 
-    SiteConfig *siteConfig() const;
-
-    SiteConfigWidget *siteConfigWidget() const;
-
-    void outputToJson(QJsonObject& obj);
-    void clear();
+    void clear(void);
 
 private:
-    SiteConfig* m_siteConfig = nullptr;
-    SiteConfigWidget* m_siteConfigWidget = nullptr;
-    Vs30* m_vs30 = nullptr;
-    Vs30Widget* m_vs30Widget = nullptr;
-    zDepthWidget* m_z1DepthWidget = nullptr;
-    zDepthWidget* m_z2DepthWidget = nullptr;
-    QGISVisualizationWidget* theVisualizationWidget = nullptr;
+    SimCenterAppSelection *buildingWidget = nullptr;
+    SimCenterAppSelection *pipelineWidget = nullptr;
+    SimCenterAppSelection *WDNWidget = nullptr;
+    SimCenterAppSelection *transportWidget = nullptr;
 };
 
-#endif // GMSiteWidget_H
+#endif // SYSTEM_PERFORMANCE_WIDGET_H

@@ -1,5 +1,6 @@
-﻿#ifndef RecoveryWidget_H
-#define RecoveryWidget_H
+#ifndef LiqVerticalHazus2020_H
+#define LiqVerticalHazus2020_H
+
 /* *****************************************************************************
 Copyright (c) 2016-2021, The Regents of the University of California (Regents).
 All rights reserved.
@@ -36,27 +37,45 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 *************************************************************************** */
 
-// Written by: Frank McKenna
+// Written by: Jinyan Zhao
 
-#include "MultiComponentR2D.h"
+#include "SimCenterAppWidget.h"
+#include "SC_DoubleLineEdit.h"
 
-class SimCenterAppSelection;
 
-class RecoveryWidget : public  MultiComponentR2D
+class QComboBox;
+class QLineEdit;
+class QPushButton;
+class CRSSelectionWidget;
+class QSignalMapper;
+class QLabel;
+class QGroupBox;
+class QCheckBox;
+
+class LiqVerticalHazus2020 : public SimCenterAppWidget
 {
     Q_OBJECT
 
 public:
-    explicit RecoveryWidget(QWidget *parent = 0);
-    ~RecoveryWidget();
+    explicit LiqVerticalHazus2020(QWidget *parent = nullptr);
+    bool outputToJSON(QJsonObject &jsonObject);
 
-    void clear(void);
+signals:
+
+public slots:
+    void setDefaultFilePath();
 
 private:
-    SimCenterAppSelection *buildingWidget = nullptr;
-    SimCenterAppSelection *pipelineWidget = nullptr;
-    SimCenterAppSelection *WDNWidget = nullptr;
-    SimCenterAppSelection *transportWidget = nullptr;
+    QLabel* messageLabel;
+
+    QPushButton* resetToDefaultButton;
+
+    QGroupBox* outputSaveGroupBox = nullptr;
+
+    QMap<QString, QCheckBox*> outputSaveCheckBoxes;
+
+
+
 };
 
-#endif // RecoveryWidget_H
+#endif // LiqVerticalHazus2020_H

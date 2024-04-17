@@ -47,13 +47,18 @@ INCLUDEPATH += $$PWD \
                $$PWD/Events/UI \
                $$PWD/Tools \
                $$PWD/assetWidgets \
-               $$PWD/recoveryWidgets \	       
+               $$PWD/systemPerformanceWidgets \	       
                $$PWD/assetWidgets/EPANET2.2/include \
 	       $$PWD/assetWidgets/EPANET2.2/src \
 	       $$PWD/dlWidgets
 
 SOURCES +=  $$PWD/Events/UI/BedrockDepth.cpp \
             $$PWD/Events/UI/BedrockDepthWidget.cpp \
+    $$PWD/Events/UI/GroundFailureWidget.cpp \
+    $$PWD/Events/UI/LiqLateralHazus2020.cpp \
+    $$PWD/Events/UI/LiqTriggerHazus2020.cpp \
+    $$PWD/Events/UI/LiqVerticalHazus2020.cpp \
+    $$PWD/Events/UI/LiquefactionWidget.cpp \
             $$PWD/Events/UI/UCERF2Widget.cpp \
             $$PWD/Events/UI/HazardConsistentScenarioWidget.cpp \
             $$PWD/Events/UI/ConventionalScenarioWidget.cpp \
@@ -109,6 +114,7 @@ SOURCES +=  $$PWD/Events/UI/BedrockDepth.cpp \
             $$PWD/Events/UI/SpatialCorrelationWidget.cpp \
             $$PWD/Events/UI/Vs30.cpp \
             $$PWD/Events/UI/Vs30Widget.cpp \
+    $$PWD/Events/UI/LiqTriggerZhuEtAl2017.cpp \
             $$PWD/Events/UI/zDepthWidget.cpp \
             $$PWD/Events/UI/zDepthUserInputWidget.cpp \
             $$PWD/ModelViewItems/ComponentTableModel.cpp \
@@ -192,8 +198,8 @@ SOURCES +=  $$PWD/Events/UI/BedrockDepth.cpp \
             $$PWD/GraphicElements/GIS_Selection.cpp \
 	    $$PWD/RunWidget.cpp \
             $$PWD/WorkflowAppR2D.cpp \
-            $$PWD/recoveryWidgets/RecoveryWidget.cpp \
-            $$PWD/recoveryWidgets/RewetRecovery.cpp \
+            $$PWD/systemPerformanceWidgets/SystemPerformanceWidget.cpp \
+            $$PWD/systemPerformanceWidgets/RewetRecovery.cpp \
             $$PWD/assetWidgets/InpFileWaterInputWidget.cpp \
 	    $$PWD/assetWidgets/EPANET2.2/geoJSON.c \
 	    $$PWD/assetWidgets/EPANET2.2/src/inpfile.c \
@@ -221,6 +227,11 @@ SOURCES +=  $$PWD/Events/UI/BedrockDepth.cpp \
 
 HEADERS +=  $$PWD/Events/UI/BedrockDepth.h \
             $$PWD/Events/UI/BedrockDepthWidget.h \
+    $$PWD/Events/UI/GroundFailureWidget.h \
+    $$PWD/Events/UI/LiqLateralHazus2020.h \
+    $$PWD/Events/UI/LiqTriggerHazus2020.h \
+    $$PWD/Events/UI/LiqVerticalHazus2020.h \
+    $$PWD/Events/UI/LiquefactionWidget.h \
             $$PWD/Events/UI/UCERF2Widget.h \
             $$PWD/Events/UI/HazardConsistentScenarioWidget.h \
             $$PWD/Events/UI/ConventionalScenarioWidget.h \
@@ -274,6 +285,7 @@ HEADERS +=  $$PWD/Events/UI/BedrockDepth.h \
             $$PWD/Events/UI/SpatialCorrelationWidget.h \
             $$PWD/Events/UI/Vs30.h \
             $$PWD/Events/UI/Vs30Widget.h \
+    $$PWD/Events/UI/LiqTriggerZhuEtAl2017.h \
             $$PWD/Events/UI/zDepthWidget.h \
             $$PWD/Events/UI/zDepthUserInputWidget.h \
             $$PWD/Tools/AssetInputDelegate.h \
@@ -362,8 +374,8 @@ HEADERS +=  $$PWD/Events/UI/BedrockDepth.h \
             $$PWD/GraphicElements/GIS_Selection.h \
             $$PWD/WorkflowAppR2D.h \
             $$PWD/RunWidget.h \
-            $$PWD/recoveryWidgets/RecoveryWidget.h \	    	    
-            $$PWD/recoveryWidgets/RewetRecovery.h \
+            $$PWD/systemPerformanceWidgets/SystemPerformanceWidget.h \	    	    
+            $$PWD/systemPerformanceWidgets/RewetRecovery.h \
             $$PWD/assetWidgets/InpFileWaterInputWidget.h \	    
 	    $$PWD/assetWidgets/EPANET2.2/include/epanet2.h \
 	    $$PWD/assetWidgets/EPANET2.2/include/epanet2_2.h \

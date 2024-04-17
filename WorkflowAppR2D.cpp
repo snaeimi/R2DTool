@@ -43,7 +43,7 @@ UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #include "AssetsWidget.h"
 #include "CustomizedItemModel.h"
 #include "DLWidget.h"
-#include "RecoveryWidget.h"
+#include "SystemPerformanceWidget.h"
 #include "DakotaResultsSampling.h"
 #include "GeneralInformationWidgetR2D.h"
 #include "GoogleAnalytics.h"
@@ -217,19 +217,19 @@ void WorkflowAppR2D::initialize(void)
     theVisualizationWidget = new QGISVisualizationWidget(theMainWindow);
 
     theToolDialog = new ToolDialog(this, theVisualizationWidget);
+    
 
     // Tools menu
     QMenu *toolsMenu = new QMenu(tr("&Tools"),menuBar);
 
     // Set the path to the input file
-    toolsMenu->addAction("&Earthquake Scenario Simulation", theToolDialog, &ToolDialog::handleShowEQGMSimTool);
+    toolsMenu->addAction("&Earthquake Event Generation", theToolDialog, &ToolDialog::handleShowEQGMSimTool);
     toolsMenu->addAction("&Hurricane Scenario Simulation", theToolDialog, &ToolDialog::handleShowHurricaneSimTool);
     toolsMenu->addAction("&Census Data Allocation", theToolDialog, &ToolDialog::handleShowCensusAppTool);
     toolsMenu->addAction("&OpenQuake Source Selection", theToolDialog, &ToolDialog::handleShowOpenquakeSelectionTool);
     toolsMenu->addAction("&BRAILS-Buildings", theToolDialog, &ToolDialog::handleBrailsInventoryTool);
     toolsMenu->addAction("&BRAILS-Transportation", theToolDialog, &ToolDialog::handleBrailsTranspInventoryTool);
     menuBar->insertMenu(menuAfter, toolsMenu);
-
 
     theAssetsWidget = new AssetsWidget(this,theVisualizationWidget);
     theHazardToAssetWidget = new HazardToAssetWidget(this, theVisualizationWidget);
@@ -240,16 +240,14 @@ void WorkflowAppR2D::initialize(void)
     
     theLocalEvent = new SimCenterAppEventSelection(QString("Events"), QString("Events"),this);
     SimCenterAppWidget *simcenterEvent = new SimCenterEventRegional();
-    theLocalEvent->addComponent(QString("SimCenterEvent"), QString("SimCenterEvent"), simcenterEvent);							
+    theLocalEvent->addComponent(QString("SimCenterEvent"), QString("SimCenterEvent"), simcenterEvent);
     
     theDamageAndLossWidget = new DLWidget(this, theVisualizationWidget);
-    theRecoveryWidget = new RecoveryWidget(this);
+    theSystemPerformanceWidget = new SystemPerformanceWidget(this);
     
     theUQWidget = new UQWidget(this);
     theResultsWidget = new ResultsWidget(this, theVisualizationWidget);
     thePerformanceWidget = new PerformanceWidget(this,theRVs);
-
-
 
     connect(theGeneralInformationWidgetR2D, SIGNAL(assetChanged(QString, bool)), this, SLOT(assetSelectionChanged(QString, bool)));
     connect(theHazardsWidget,SIGNAL(gridFileChangedSignal(QString, QString)), theHazardToAssetWidget, SLOT(hazardGridFileChangedSlot(QString,QString)));
@@ -277,7 +275,7 @@ void WorkflowAppR2D::initialize(void)
     theComponentSelection->addComponent(tr("MOD"), theModelingWidget);
     theComponentSelection->addComponent(tr("ANA"), theAnalysisWidget);
     theComponentSelection->addComponent(tr("DL"),  theDamageAndLossWidget);
-    theComponentSelection->addComponent(tr("SYS"), theRecoveryWidget);    
+    theComponentSelection->addComponent(tr("SP"), theSystemPerformanceWidget);    
     theComponentSelection->addComponent(tr("UQ"), theUQWidget);
     theComponentSelection->addComponent(tr("RV"), theRVs);
     theComponentSelection->addComponent(tr("RES"), theResultsWidget);
@@ -371,7 +369,7 @@ bool WorkflowAppR2D::outputToJSON(QJsonObject &jsonObjectTop)
         result = false;
     }
 
-    if (theRecoveryWidget->outputAppDataToJSON(apps) == false) {
+    if (theSystemPerformanceWidget->outputAppDataToJSON(apps) == false) {
         this->errorMessage("Error writing DL data to output");
         result = false;
     }    
@@ -425,7 +423,7 @@ bool WorkflowAppR2D::outputToJSON(QJsonObject &jsonObjectTop)
     theHazardsWidget->outputToJSON(jsonObjectTop);
     theAnalysisWidget->outputToJSON(jsonObjectTop);
     theDamageAndLossWidget->outputToJSON(jsonObjectTop);
-    theRecoveryWidget->outputToJSON(jsonObjectTop);    
+    theSystemPerformanceWidget->outputToJSON(jsonObjectTop);    
     theHazardToAssetWidget->outputToJSON(jsonObjectTop);
     /* **************************** Performance *****************************
     thePerformanceWidget->outputToJSON(jsonObjectTop);       
@@ -453,6 +451,11 @@ bool WorkflowAppR2D::outputToJSON(QJsonObject &jsonObjectTop)
     defaultValues["rvFiles"]= rvFiles;
     defaultValues["edpFiles"]=edpFiles;
     jsonObjectTop["DefaultValues"]=defaultValues;    
+
+    QJsonObject citations;
+
+    this->createCitation(citations);
+    jsonObjectTop.insert("citations",citations);
     
     return result;
 }
@@ -480,15 +483,15 @@ void WorkflowAppR2D::clear(void)
     theAssetsWidget->clear();
     theHazardsWidget->clear();
     theDamageAndLossWidget->clear();
-    theRecoveryWidget->clear();    
+    theSystemPerformanceWidget->clear();    
     /* **************************** Performance *****************************    
     thePerformanceWidget->clear();
     ****************************** Performance ***************************** */    
     theResultsWidget->clear();
+    theToolDialog->clear();
     theVisualizationWidget->clear();
     // progressDialog->clear();
     theComponentSelection->displayComponent("VIZ");
-    theToolDialog->clear();
 }
 
 
@@ -557,9 +560,9 @@ bool WorkflowAppR2D::inputFromJSON(QJsonObject &jsonObject)
             result = false;
         }
 
-        if (theRecoveryWidget->inputAppDataFromJSON(apps) == false) {
+        if (theSystemPerformanceWidget->inputAppDataFromJSON(apps) == false) {
             this->errorMessage("REC failed to read input data");
-	    theRecoveryWidget->clear();
+	    theSystemPerformanceWidget->clear();
             result = false;
         }	
 
@@ -628,7 +631,7 @@ bool WorkflowAppR2D::inputFromJSON(QJsonObject &jsonObject)
       result = false;
     }
 
-    if (theRecoveryWidget->inputFromJSON(jsonObject) == false) {
+    if (theSystemPerformanceWidget->inputFromJSON(jsonObject) == false) {
       this->errorMessage("DL failed to read app specific data");
       result = false;
     }    
@@ -716,7 +719,6 @@ void WorkflowAppR2D::setUpForApplicationRun(QString &workingDir, QString &subDir
         destinationDirectory.mkpath(tmpDirectory);
 
     theResultsWidget->clear();
-    //qDebug() << "WorkflowAppR2D is changinging subDir to input_data";
     subDir = "input_data";
 
     QString templateDirectory  = destinationDirectory.absoluteFilePath(subDir);
@@ -793,9 +795,9 @@ void WorkflowAppR2D::setUpForApplicationRun(QString &workingDir, QString &subDir
         return;
     }
 
-    res = theRecoveryWidget->copyFiles(templateDirectory);
+    res = theSystemPerformanceWidget->copyFiles(templateDirectory);
     if(!res) {
-        errorMessage("Error in copy files in "+theRecoveryWidget->objectName());
+        errorMessage("Error in copy files in "+theSystemPerformanceWidget->objectName());
         progressDialog->hideProgressBar();
         return;
     }    
@@ -936,7 +938,7 @@ void WorkflowAppR2D::assetSelectionChanged(QString text, bool value)
         thePerformanceWidget->show(text);
 	* *********************************/
         theDamageAndLossWidget->show(text);
-        theRecoveryWidget->show(text);	
+        theSystemPerformanceWidget->show(text);	
         theUQWidget->show(text);
     }
     else
@@ -950,7 +952,7 @@ void WorkflowAppR2D::assetSelectionChanged(QString text, bool value)
         thePerformanceWidget->hide(text);
 	*********************************** */	
         theDamageAndLossWidget->hide(text);
-        theRecoveryWidget->hide(text);	
+        theSystemPerformanceWidget->hide(text);	
         theUQWidget->hide(text);
     }
 
@@ -1008,3 +1010,38 @@ void WorkflowAppR2D::loadResults(void)
     resultsDialog->show();
 }
 
+int
+WorkflowAppR2D::createCitation(QJsonObject &citation) {
+
+  QString cit("{\"EE-UQ\": { \"citations\": [{\"citation\": \"Frank McKenna, Stevan Gavrilovic, Jinyan Zhao, Kuanshi Zhong, Adam Zsarnoczay, Barbaros Cetiner, Sang-ri Yi, Pedro Arduino, & Wael Elhaddad. (2024). NHERI-SimCenter/R2DTool: Version 4.1.0 (v4.1.0). Zenodo. https://doi.org/10.5281/zenodo.10902064\"},{\"citation\": \"Gregory G. Deierlein, Frank McKenna, Adam Zsarnóczay, Tracy Kijewski-Correa, Ahsan Kareem, Wael Elhaddad, Laura Lowes, Mat J. Schoettler, and Sanjay Govindjee (2020) A Cloud-Enabled Application Framework for Simulating Regional-Scale Impacts of Natural Hazards on the Built Environment. Frontiers in the Built Environment. 6:558706. doi: 10.3389\/fbuil.2020.558706\",\"description\": \" This marker paper describes the SimCenter application framework, which was designed to simulate the impacts of natural hazards on the built environment.It  is a necessary attribute for publishing work resulting from the use of SimCenter tools, software, and datasets.\"}]}}");
+
+  QJsonDocument docC = QJsonDocument::fromJson(cit.toUtf8());
+  if(!docC.isNull()) {
+    if(docC.isObject()) {
+      citation = docC.object();        
+    }  else {
+      qDebug() << "WorkflowdAppR2D citation text is not valid JSON: \n" << cit << endl;
+    }
+  }
+
+  /*
+  QFile file(citeFile);
+  if (!file.open(QFile::WriteOnly | QFile::Text)) {
+    //errorMessage();
+    progressDialog->hideProgressBar();
+    return 0;
+  }
+  QJsonDocument doc(citation);
+  file.write(doc.toJson());
+  file.close();
+
+  theSIM->outputCitation(citation);
+  theEventSelection->outputCitation(citation);
+  theAnalysisSelection->outputCitation(citation);
+  theUQ_Selection->outputCitation(citation);
+  theEDP_Selection->outputCitation(citation);
+  */
+
+  
+  return 0;    
+}
